@@ -1,5 +1,7 @@
 const SHOW_QA = true;
 
+const checkmarkHTML = "<span class='Checkmark' style='color: #33FF33; padding-right: 8px;'>&check;</span>";
+
 // This function colours the bars in the episode index
 function ShowOverview() {
 	let pathName = window.location.pathname;
@@ -12,7 +14,7 @@ function ShowOverview() {
 		if (!episodeName.endsWith("/")) {
 			episodeName = episodeName + "/";
 		}
-		let loadedData = JSON.parse(window.localStorage.getItem(episodeName))
+		let loadedData = JSON.parse(window.localStorage.getItem(episodeName));
 		if (loadedData) {
 			let originalHTML = episodes.children[i].innerHTML;
 			
@@ -80,16 +82,64 @@ function ShowOverview() {
 			episodes.children[i].setAttribute('style', 'position:relative;')
 		}
 	}
+	
+	// Search results
+	{
+		// Listening for search requests
+		{
+			let observer = new MutationObserver(function(mutations) {
+			  mutations.forEach(function(mutation) {
+			  	if (mutation.addedNodes.length == 0) { return; }
+				let container = mutation.target.parentNode.querySelectorAll(".projectContainer")[0];
+				if (!container || container.children.length == 0) { return; }
+				for (let filteredDay_i = 0; filteredDay_i < container.children.length; ++filteredDay_i) {
+					let markerContainer = container.children[filteredDay_i].children[1];
+					let episodeName = markerContainer.children[0].href;
+					episodeName = episodeName.substring(episodeName.indexOf("/episode/") + 9);
+					episodeName = episodeName.substring(0, episodeName.indexOf("#"));
+					let localStorageDay = JSON.parse(window.localStorage.getItem(episodeName));
+					if (!localStorageDay) { continue; }
+					
+					let sum = 0;
+					for (let link_i = 0; link_i < markerContainer.children.length; ++link_i) {
+						let linkTimestamp = markerContainer.children[link_i].href;
+						linkTimestamp = linkTimestamp.substring(linkTimestamp.indexOf("#") + 1);
+						if (localStorageDay["Done"].includes(linkTimestamp)) {
+							markerContainer.children[link_i].innerHTML = checkmarkHTML + markerContainer.children[link_i].innerHTML;
+						}
+						++sum;
+					}
+					if (sum == markerContainer.children.length) {
+						let backgroundColor;
+						if (filteredDay_i % 2 == 0) {
+							backgroundColor = "background-color:#00ff7f7f;"
+						} else {
+							backgroundColor = "background-color:#00ff007f;"
+						}
+						markerContainer.parentNode.style = backgroundColor;
+					}
+				}
+			  });    
+			});
+			let config = { childList: true };
+			observer.observe(document.getElementById("cineraResultsSummary").parentNode, config);
+		}
+	}
+	console.log("Added");
 }
 
 // Everyhing that happens in the episode view
 function ShowEpisode(episodeName, episodeObject) {
 	
-	
 	let list = document.getElementsByClassName("marker");
 	let doneObject = [];
 	
 	if (!episodeObject) {
+		if (!player.markers[player.markers.length - 1].endTime) {
+			setTimeout(function() {ShowEpisode(episodeName, episodeObject);}, 1000);
+			return;
+		}
+		
 		// This gnerated the data when not prevalent in the local storage
 		// Apparentlly, I could have gotten that from the markers already
 		
@@ -198,8 +248,6 @@ function main() {
 
 // Adding the checkmarks infront of the times in the episode view
 function AddCheckmark(target) {
-	let checkmarkHTML = "<span class='Checkmark' style='color: #33FF33; padding-right: 8px;'>&check;</span>";
-	
 	target.children[0].innerHTML = checkmarkHTML + target.children[0].innerHTML;
 	target.children[1].children[0].innerHTML = checkmarkHTML + target.children[1].children[0].innerHTML;
 	target.children[2].children[0].innerHTML = checkmarkHTML + target.children[2].children[0].innerHTML;
