@@ -30,9 +30,9 @@ function ShowOverview() {
 			
 			// Colouring the NORMAL parts of the episode
 			for (let timestamp_i = 0; timestamp_i < loadedData["Normal"].length; ++timestamp_i) {
-				let barColor = "#ff00003f";
+				let barColor = (i % 2 == 0) ? "#df00003f" : "#ff2f2f3f";
 				if (loadedData["Done"].includes(loadedData["Normal"][timestamp_i])) {
-					barColor = "#00ff003f";
+					barColor = (i % 2 == 0) ? "#00df003f" : "#2fff2f3f";
 				}
 				let startTime = loadedData["Normal"][timestamp_i];
 				let endTime;
@@ -55,11 +55,11 @@ function ShowOverview() {
 					let barColor;
 					
 					if (timestamp_i == 0) {
-						barColor = "#007fff3f";
+						barColor = (i % 2 == 0) ? "#007dff3f" : "#3fafff3f";
 					} else {
-						barColor = "#ff00003f";
+						barColor = (i % 2 == 0) ? "#df00003f" : "#ff2f2f3f";
 						if (loadedData["Done"].includes(loadedData["QA"][timestamp_i])) {
-							barColor = "#00ff003f";
+							barColor = (i % 2 == 0) ? "#00df003f" : "#2fff2f3f";
 						}
 					}
 					
@@ -110,12 +110,7 @@ function ShowOverview() {
 						++sum;
 					}
 					if (sum == markerContainer.children.length) {
-						let backgroundColor;
-						if (filteredDay_i % 2 == 0) {
-							backgroundColor = "background-color:#00ff7f7f;"
-						} else {
-							backgroundColor = "background-color:#00ff007f;"
-						}
+						let backgroundColor = (filteredDay_i % 2 == 0) ? "background-color:#005f00ff;" : "background-color:#2f6f2fff;";
 						markerContainer.parentNode.style = backgroundColor;
 					}
 				}
