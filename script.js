@@ -109,8 +109,33 @@ function ShowOverview() {
 						}
 						++sum;
 					}
+					
+					// All things of this day have been watched
 					if (sum == markerContainer.children.length) {
-						let backgroundColor = (filteredDay_i % 2 == 0) ? "background-color:#005f00ff;" : "background-color:#2f6f2fff;";
+						
+						// Check if I have watched the complete day
+						// TODO: what about Q&A
+						
+						let backgroundColor = (filteredDay_i % 2 == 0) ? "background-color:#5f5f00ff;" : "background-color:#7f6f2fff;";
+						
+						// Have I actually watched the whole day already?
+						if (localStorageDay["Done"].length == localStorageDay["Normal"].length + localStorageDay["QA"].length) {
+							backgroundColor = (filteredDay_i % 2 == 0) ? "background-color:#005f00ff;" : "background-color:#2f6f2fff;";
+						} else {
+							
+							let watchedAllNormal = true;
+							// Check if I have watched at least the normal part then
+							for (let normalTimestamp_i = 0; normalTimestamp_i < localStorageDay["Normal"].length; ++normalTimestamp_i) {
+								if (!localStorageDay["Done"].includes(localStorageDay["Normal"][normalTimestamp_i])) {
+									watchedAllNormal = false;
+									break;
+								}
+							}
+							if (watchedAllNormal) {
+								backgroundColor = (filteredDay_i % 2 == 0) ? "background-color:#005f5fff;" : "background-color:#2f6f7fff;";
+							}
+						}
+						 
 						markerContainer.parentNode.style = backgroundColor;
 					}
 				}
